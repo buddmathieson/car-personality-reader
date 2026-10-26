@@ -1,3 +1,5 @@
+const CUTOFF=Date.parse('2026-10-28T19:35:00Z');
+if(Date.now()>=CUTOFF){document.querySelector('main').innerHTML='<header><div class="stars">✦ ✧ ✦</div><h1>Car Personality Reader</h1></header><section class="card center"><div style="font-size:64px">🚗💫</div><h2>This demo has ended</h2><p class="hint">Thanks for playing! The stars have parked for now.</p></section><footer>Made with AI for fun</footer>';throw new Error('ended')}
 const AI_URL='https://sfucyzoivepphqwimatg.supabase.co/functions/v1/car-personality';
 const MAKES=['Acura','Audi','BMW','Buick','Cadillac','Chevrolet','Chrysler','Dodge','Ford','Genesis','GMC','Honda','Hyundai','Infiniti','Jeep','Kia','Land Rover','Lexus','Lincoln','Mazda','Mercedes-Benz','Mini','Mitsubishi','Nissan','Porsche','Ram','Subaru','Tesla','Toyota','Volkswagen','Volvo','Other / Mystery'];
 const TYPES=['Sedan','SUV','Truck','Coupe','Minivan','EV','Sports car'];
@@ -19,7 +21,7 @@ $('#btnRead').onclick=async()=>{show('s-load');$('#loadTxt').textContent='Analyz
  const t0=Date.now();let ai=null;
  try{const ctl=new AbortController();setTimeout(()=>ctl.abort(),20000);
   const r=await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:dataUrl}),signal:ctl.signal});
-  if(r.ok){const j=await r.json();if(j&&j.sign&&j.traits)ai=j}}catch(e){}
+  if(r.ok){const j=await r.json();if(j&&j.sign&&Array.isArray(j.traits)){ai=j;ai.car=[j.color,j.car].filter(Boolean).join(' ')||'Mystery Car';ai.vibe=j.vibe||'Pure charisma';ai.idealOwner=j.idealOwner||'Someone with great taste';ai.luckyNumber=j.luckyNumber||7;ai.closingLine=j.closingLine||'The stars say: test drive.'}}}catch(e){}
  if(ai){await aura(Math.max(0,2500-(Date.now()-t0)));render(ai);}
  else{show('s-pick');$('#pickHint').textContent='The stars are a little cloudy right now. Tell us about this beauty:'}};
 $('#btnPick').onclick=async()=>{await aura(3200);render(horoscope($('#make').value,type))};
@@ -52,7 +54,7 @@ function render(h){const c=$('#cv'),x=c.getContext('2d'),W=1080;
  x.save();x.beginPath();x.roundRect(60,60,960,620,36);x.clip();const s=Math.max(960/img.width,620/img.height);
  x.drawImage(img,60+(960-img.width*s)/2,60+(620-img.height*s)/2,img.width*s,img.height*s);x.restore();
  x.textAlign='center';x.fillStyle='#ffd166';x.font='bold 40px system-ui';x.fillText('✦ CAR HOROSCOPE ✦',W/2,760);
- x.fillStyle='#fff';x.font='bold 64px system-ui';x.fillText(h.car,W/2,840);
+ x.fillStyle='#fff';let fs=64;do{x.font=`bold ${fs}px system-ui`;fs-=2}while(x.measureText(h.car).width>960&&fs>30);x.fillText(h.car,W/2,840);
  x.font='italic 36px system-ui';x.fillStyle='#ffb3d4';x.fillText('Vibe: '+h.vibe,W/2,895);
  x.font='bold 54px system-ui';x.fillStyle='#ffd166';x.fillText(`${sym} ${h.sign}  ·  Lucky #${h.luckyNumber}`,W/2,985);
  x.textAlign='left';x.fillStyle='#fff';x.font='36px system-ui';let y=1065;
