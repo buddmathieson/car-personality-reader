@@ -1,4 +1,4 @@
-// Car Personality Reader proxy. Key lives in Supabase Vault (read via service-role-only RPC). Hard cutoff below.
+// Car Personality Reader proxy. Key is the OPENAI_API_KEY Edge Function secret. Hard cutoff below.
 const CUTOFF = Date.parse('2026-10-28T19:35:00Z');
 const CORS={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'content-type','Access-Control-Allow-Methods':'POST,OPTIONS'};
 const IP_CAP=5, ALL_CAP=150, MAX=1_500_000;
@@ -14,7 +14,7 @@ Deno.serve(async req=>{
  if(typeof image!=='string'||!/^data:image\/(jpeg|png|webp);base64,/.test(image)||image.length>MAX)return J({error:'bad image'},400);
  const ip=(req.headers.get('x-forwarded-for')||'?').split(',')[0].trim();
  try{const c=await rpc('cpr_hit',{ip});if(c.ip>IP_CAP||c.all>ALL_CAP)return J({error:'daily limit'},429)}catch{return J({error:'limit check'},503)}
- let key='';try{key=await rpc('cpr_openai_key',{})}catch{}
+ const key=Deno.env.get('OPENAI_API_KEY')||'';
  if(!key)return J({error:'not configured'},503);
  const prompt=`Identify the car in this photo (make, model, rough year, colour) and write a light, friendly, client-safe "car horoscope" a car salesperson could read aloud to a customer. Gentle humour only; never insult the car, owner, or anyone. If no car is visible, playfully invent one. Reply ONLY with JSON: {"car":"Make Model (~year)","color":"colour","vibe":"2-4 word vibe","sign":"one of the 12 western zodiac signs","traits":["3 short fun personality traits"],"idealOwner":"one sentence","luckyNumber":integer 1-99,"closingLine":"one cheesy salesperson closing line"}`;
  const r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},
