@@ -2,13 +2,16 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Car Personality Reader</title><meta name="theme-color" content="#1b1240">
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png">
-<meta name="apple-mobile-web-app-capable" content="yes"><link rel="stylesheet" href="style.css"></head>
+<meta name="apple-mobile-web-app-capable" content="yes"><link rel="stylesheet" href="style.css?v=3"></head>
 <body><main>
 <header><div class="stars">✦ ✧ ✦</div><h1>Car Personality Reader</h1><p class="sub">Snap a car. Discover its soul.</p></header>
 
 <section id="s-photo" class="card">
- <label class="drop" id="drop"><input id="file" type="file" accept="image/*" capture="environment" hidden>
-  <img id="preview" alt="" hidden><span id="dropTxt">📸<br><b>Tap to take a photo</b><br><small>or choose one from your library</small></span></label>
+ <div class="drop" id="drop"><img id="preview" alt="" hidden><span id="dropTxt">🚗✨<br><b>Add a photo of a car</b></span></div>
+ <p id="imgMsg" class="msg" hidden></p>
+ <input id="fileCam" type="file" accept="image/*" capture="environment" hidden>
+ <input id="fileLib" type="file" accept="image/*" hidden>
+ <div class="row"><button id="btnCam" type="button">📸 Take Photo</button><button id="btnLib" type="button">🖼️ Choose from Photos/Files</button></div>
  <button id="btnRead" class="primary" disabled>🔮 Read its personality</button>
 </section>
 
@@ -29,4 +32,4 @@
  <button id="btnAgain" class="ghost">↺ Read another car</button>
 </section>
 <footer>Made with AI for fun · just for laughs, not a vehicle appraisal</footer>
-</main><script src="app.js"></script></body></html>
+</main><script src="app.js?v=3"></script></body></html>

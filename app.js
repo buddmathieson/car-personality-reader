@@ -9,23 +9,36 @@ $('#make').innerHTML=MAKES.map(m=>`<option>${m}</option>`).join('');$('#make').v
 $('#types').innerHTML=TYPES.map(t=>`<button type="button" class="${t===type?'on':''}">${t}</button>`).join('');
 $('#types').onclick=e=>{if(e.target.tagName!=='BUTTON')return;type=e.target.textContent;[...$('#types').children].forEach(b=>b.classList.toggle('on',b===e.target))};
 
-$('#file').onchange=async e=>{const f=e.target.files[0];if(!f)return;
- const u=URL.createObjectURL(f);const i=new Image();i.onload=()=>{const s=Math.min(1,1024/Math.max(i.width,i.height));
-  const c=document.createElement('canvas');c.width=i.width*s;c.height=i.height*s;c.getContext('2d').drawImage(i,0,0,c.width,c.height);
-  dataUrl=c.toDataURL('image/jpeg',.82);img=new Image();img.src=dataUrl;$('#preview').src=dataUrl;$('#preview').hidden=false;$('#dropTxt').hidden=true;$('#btnRead').disabled=false};i.src=u};
-
+const withTimeout=(p,ms,what)=>Promise.race([p,new Promise((_,r)=>setTimeout(()=>r(new Error(what+' timed out')),ms))]);
+function msg(t,err){const m=$('#imgMsg');m.hidden=!t;m.textContent=t||'';m.className='msg'+(err?' err':'')}
+async function decode(f){
+ if(window.createImageBitmap){try{return await createImageBitmap(f,{imageOrientation:'from-image'})}catch(e){try{return await createImageBitmap(f)}catch(e2){}}}
+ const u=URL.createObjectURL(f);try{return await new Promise((res,rej)=>{const i=new Image();i.decoding='async';i.onload=()=>res(i);i.onerror=()=>rej(new Error('decode'));i.src=u})}finally{setTimeout(()=>URL.revokeObjectURL(u),5000)}}
+async function toJpeg(src){const w=src.width||src.naturalWidth,h=src.height||src.naturalHeight;if(!w||!h)throw new Error('empty');
+ const s=Math.min(1,1024/Math.max(w,h)),c=document.createElement('canvas');c.width=Math.round(w*s);c.height=Math.round(h*s);
+ const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(src,0,0,c.width,c.height);if(src.close)src.close();
+ let u=null;try{const b=await new Promise(r=>c.toBlob(r,'image/jpeg',.82));if(b)u=await new Promise((r,j)=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.onerror=j;fr.readAsDataURL(b)})}catch(e){}
+ if(!u||u.length<100)u=c.toDataURL('image/jpeg',.82);return u}
+async function onPick(e){const inp=e.target,f=inp.files&&inp.files[0];inp.value='';if(!f)return;
+ $('#btnRead').disabled=true;msg('Loading photo…');
+ try{const src=await withTimeout(decode(f),15000,'Photo load');dataUrl=await withTimeout(toJpeg(src),10000,'Photo resize');
+  img=new Image();await withTimeout(new Promise((r,j)=>{img.onload=r;img.onerror=j;img.src=dataUrl}),5000,'Preview');
+  $('#preview').src=dataUrl;$('#preview').hidden=false;$('#dropTxt').hidden=true;$('#btnRead').disabled=false;msg('')}
+ catch(err){console.warn(err);msg('Hmm, that photo wouldn\'t load. Try again, or choose a different photo (JPEG/PNG works best).',true)}}
+$('#fileCam').onchange=onPick;$('#fileLib').onchange=onPick;
+$('#btnCam').onclick=()=>$('#fileCam').click();$('#btnLib').onclick=()=>$('#fileLib').click();
 const LINES=['Reading tire tread for hidden feelings…','Consulting the cupholder constellations…','Aligning the chakras (and the wheels)…','Decoding the headlight gaze…','Calculating horsepower of the soul…'];
 async function aura(ms){show('s-load');let k=0;const t=setInterval(()=>$('#loadTxt').textContent=LINES[k++%LINES.length],700);await new Promise(r=>setTimeout(r,ms));clearInterval(t)}
 
 $('#btnRead').onclick=async()=>{show('s-load');$('#loadTxt').textContent='Analyzing your car\'s aura…';
  const t0=Date.now();let ai=null;
- try{const ctl=new AbortController();setTimeout(()=>ctl.abort(),20000);
-  const r=await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:dataUrl}),signal:ctl.signal});
-  if(r.ok){const j=await r.json();if(j&&j.sign&&Array.isArray(j.traits)){ai=j;ai.car=[j.color,j.car].filter(Boolean).join(' ')||'Mystery Car';ai.vibe=j.vibe||'Pure charisma';ai.idealOwner=j.idealOwner||'Someone with great taste';ai.luckyNumber=j.luckyNumber||7;ai.closingLine=j.closingLine||'The stars say: test drive.'}}}catch(e){}
+ try{const ctl=new AbortController();const tm=setTimeout(()=>ctl.abort(),15000);
+  const r=await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:dataUrl}),signal:ctl.signal});clearTimeout(tm);
+  if(r.ok){const j=await withTimeout(r.json(),5000,'AI');if(j&&j.sign&&Array.isArray(j.traits)){ai=j;ai.car=[j.color,j.car].filter(Boolean).join(' ')||'Mystery Car';ai.vibe=j.vibe||'Pure charisma';ai.idealOwner=j.idealOwner||'Someone with great taste';ai.luckyNumber=j.luckyNumber||7;ai.closingLine=j.closingLine||'The stars say: test drive.'}}}catch(e){}
  if(ai){await aura(Math.max(0,2500-(Date.now()-t0)));render(ai);}
  else{show('s-pick');$('#pickHint').textContent='The stars are a little cloudy right now. Tell us about this beauty:'}};
 $('#btnPick').onclick=async()=>{await aura(3200);render(horoscope($('#make').value,type))};
-$('#btnAgain').onclick=()=>{$('#file').value='';$('#preview').hidden=true;$('#dropTxt').hidden=false;$('#btnRead').disabled=true;show('s-photo')};
+$('#btnAgain').onclick=()=>{msg('');$('#preview').hidden=true;$('#dropTxt').hidden=false;$('#btnRead').disabled=true;show('s-photo')};
 
 // seeded templates
 function rng(seed){let h=1779033703^seed.length;for(const ch of seed){h=Math.imul(h^ch.charCodeAt(0),3432918353);h=h<<13|h>>>19}
@@ -68,4 +81,4 @@ const blob=()=>new Promise(r=>$('#cv').toBlob(r,'image/png'));
 $('#btnSave').onclick=async()=>{const a=document.createElement('a');a.href=URL.createObjectURL(await blob());a.download='car-horoscope.png';a.click()};
 $('#btnShare').onclick=async()=>{const f=new File([await blob()],'car-horoscope.png',{type:'image/png'});
  if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],title:'My car\'s horoscope'})}catch(e){}}else $('#btnSave').click()};
-if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
+if('serviceWorker'in navigator){navigator.serviceWorker.register('sw.js?v=3').then(r=>r.update());let rl=0;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!rl&&$('#preview').hidden&&!$('#s-photo').hidden){rl=1;location.reload()}})}

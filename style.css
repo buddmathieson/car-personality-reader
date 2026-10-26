@@ -18,3 +18,4 @@ background:conic-gradient(#ff7ab6,#ffd166,#7ad7ff,#b57aff,#ff7ab6);animation:spi
 @keyframes spin{to{transform:rotate(360deg) scale(1.05)}}#loadTxt{font-size:18px;margin-top:24px}
 canvas{width:100%;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,.5)}.row{display:flex;gap:10px}
 footer{text-align:center;opacity:.55;font-size:12px;margin-top:28px}
+.row button{font-size:15px}.msg{text-align:center;margin:12px 0 0;color:#ffd166}.msg.err{color:#ff9a9a}.drop{cursor:default}
