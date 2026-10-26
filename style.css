@@ -1,0 +1,20 @@
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#fff;min-height:100vh;
+background:radial-gradient(circle at 20% 0%,#4b2a8a,transparent 50%),radial-gradient(circle at 100% 60%,#8a2a6a,transparent 45%),#1b1240}
+main{max-width:480px;margin:auto;padding:calc(20px + env(safe-area-inset-top)) 18px 30px}
+header{text-align:center;margin:10px 0 20px}.stars{color:#ffd166;letter-spacing:8px}
+h1{margin:6px 0;font-size:30px;background:linear-gradient(90deg,#ffd166,#ff7ab6);-webkit-background-clip:text;color:transparent}
+.sub{margin:0;opacity:.8}h2{margin:0 0 4px}.hint{opacity:.8;margin:0 0 14px}
+.card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:22px;padding:18px;backdrop-filter:blur(8px)}
+.drop{display:flex;align-items:center;justify-content:center;text-align:center;aspect-ratio:4/3;border:2px dashed rgba(255,255,255,.35);border-radius:16px;cursor:pointer;overflow:hidden;font-size:18px;line-height:1.6}
+.drop img{width:100%;height:100%;object-fit:cover}
+button{width:100%;margin-top:14px;padding:16px;border-radius:14px;border:0;font-size:17px;font-weight:700;background:rgba(255,255,255,.15);color:#fff}
+button.primary{background:linear-gradient(90deg,#ff7ab6,#ffb347);color:#1b1240}button:disabled{opacity:.4}
+button.ghost{background:none;border:1px solid rgba(255,255,255,.3)}
+label{display:block;font-weight:600}select{width:100%;margin-top:6px;padding:14px;border-radius:12px;font-size:16px;border:0}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.chips button{width:auto;margin:0;padding:10px 14px;font-size:15px;border-radius:99px}
+.chips button.on{background:#ffd166;color:#1b1240}
+.center{text-align:center;padding:40px 18px}.orb{width:120px;height:120px;margin:auto;border-radius:50%;
+background:conic-gradient(#ff7ab6,#ffd166,#7ad7ff,#b57aff,#ff7ab6);animation:spin 1.2s linear infinite;box-shadow:0 0 60px #ff7ab6;filter:blur(1px)}
+@keyframes spin{to{transform:rotate(360deg) scale(1.05)}}#loadTxt{font-size:18px;margin-top:24px}
+canvas{width:100%;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,.5)}.row{display:flex;gap:10px}
+footer{text-align:center;opacity:.55;font-size:12px;margin-top:28px}
